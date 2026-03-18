@@ -11,7 +11,7 @@ export function formatTime(seconds: number): string {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
-export function exportToCSV(matches: any[], tournamentName: string = 'torneo') {
+export function exportToCSV(matches: any[], jornadas: any[], tournamentName: string = 'torneo') {
   if (matches.length === 0) {
     alert('No hay partidos para exportar.');
     return;
@@ -20,12 +20,18 @@ export function exportToCSV(matches: any[], tournamentName: string = 'torneo') {
   const headers = ['ID', 'Jornada', 'Cancha', 'Jugadores', 'Categoría', 'Ráfagas Fotos', 'Notas', 'Inicio', 'Fin', 'Duración (min)'];
   
   const rows = matches.map(m => {
+    const jornadaData = jornadas.find(j => j.number === m.jornada);
+    const jName = jornadaData?.name || `Jornada ${m.jornada}`;
+    const jDate = jornadaData?.date || new Date(m.startTime).toLocaleDateString();
+    
     const start = new Date(m.startTime).toLocaleTimeString();
     const end = m.endTime ? new Date(m.endTime).toLocaleTimeString() : 'En curso';
     const dur = m.duration ? (m.duration / 60).toFixed(1) : '-';
     
+    const generatedId = `"${jName}/${jDate}/${start}"`;
+    
     return [
-      m.id,
+      generatedId,
       m.jornada,
       m.courtId,
       `"${m.players.replace(/"/g, '""')}"`,
