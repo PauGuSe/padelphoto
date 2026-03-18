@@ -57,4 +57,6 @@ export interface AppState {
   jornadas: Jornada[];
   sponsors: Sponsor[];
   checklists: Checklist[];
+  categories: string[];
+  colors: string[];
 }
