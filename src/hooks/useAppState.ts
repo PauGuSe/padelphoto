@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { AppState, Court, Match } from '../types';
+import { AppState, Court, Match, Sponsor, ChecklistItem } from '../types';
 
 const STORAGE_KEY = 'padel_photo_app_state';
 
@@ -11,6 +11,8 @@ const defaultState: AppState = {
   courts: [],
   matches: [],
   jornadas: [],
+  sponsors: [],
+  checklists: [],
 };
 
 export function useAppState() {
@@ -23,6 +25,8 @@ export function useAppState() {
         if (!parsed.currentJornada) parsed.currentJornada = 1;
         if (!parsed.tournamentName) parsed.tournamentName = 'Torneo de Pádel';
         if (!parsed.jornadas) parsed.jornadas = [];
+        if (!parsed.sponsors) parsed.sponsors = [];
+        if (!parsed.checklists) parsed.checklists = [];
         return parsed;
       } catch (e) {
         console.error('Failed to parse state from localStorage', e);
@@ -138,6 +142,98 @@ export function useAppState() {
     }));
   }, []);
 
+  const addSponsor = useCallback((name: string) => {
+    setState(prev => ({
+      ...prev,
+      sponsors: [...(prev.sponsors || []), { id: crypto.randomUUID(), name, status: 'pending', notes: '' }]
+    }));
+  }, []);
+
+  const updateSponsor = useCallback((id: string, updates: Partial<Sponsor>) => {
+    setState(prev => ({
+      ...prev,
+      sponsors: prev.sponsors.map(s => s.id === id ? { ...s, ...updates } : s)
+    }));
+  }, []);
+
+  const deleteSponsor = useCallback((id: string) => {
+    setState(prev => ({
+      ...prev,
+      sponsors: prev.sponsors.filter(s => s.id !== id)
+    }));
+  }, []);
+
+  const addChecklist = useCallback((title: string) => {
+    setState(prev => ({
+      ...prev,
+      checklists: [...(prev.checklists || []), { id: crypto.randomUUID(), title, items: [] }]
+    }));
+  }, []);
+
+  const updateChecklist = useCallback((id: string, updates: Partial<Checklist>) => {
+    setState(prev => ({
+      ...prev,
+      checklists: prev.checklists.map(c => c.id === id ? { ...c, ...updates } : c)
+    }));
+  }, []);
+
+  const deleteChecklist = useCallback((id: string) => {
+    setState(prev => ({
+      ...prev,
+      checklists: prev.checklists.filter(c => c.id !== id)
+    }));
+  }, []);
+
+  const addChecklistItem = useCallback((checklistId: string, name: string) => {
+    setState(prev => ({
+      ...prev,
+      checklists: prev.checklists.map(c => 
+        c.id === checklistId 
+          ? { ...c, items: [...c.items, { id: crypto.randomUUID(), name, status: 'pending', notes: '' }] }
+          : c
+      )
+    }));
+  }, []);
+
+  const updateChecklistItem = useCallback((checklistId: string, itemId: string, updates: Partial<ChecklistItem>) => {
+    setState(prev => ({
+      ...prev,
+      checklists: prev.checklists.map(c => 
+        c.id === checklistId 
+          ? { ...c, items: c.items.map(i => i.id === itemId ? { ...i, ...updates } : i) }
+          : c
+      )
+    }));
+  }, []);
+
+  const deleteChecklistItem = useCallback((checklistId: string, itemId: string) => {
+    setState(prev => ({
+      ...prev,
+      checklists: prev.checklists.map(c => 
+        c.id === checklistId 
+          ? { ...c, items: c.items.filter(i => i.id !== itemId) }
+          : c
+      )
+    }));
+  }, []);
+
+  const addCourt = useCallback(() => {
+    setState(prev => {
+      const nextId = prev.courts.length > 0 ? Math.max(...prev.courts.map(c => c.id)) + 1 : 1;
+      const newCourt: Court = {
+        id: nextId,
+        name: `Cancha ${nextId}`,
+        status: 'available',
+        currentMatchId: null,
+      };
+      return {
+        ...prev,
+        totalCourts: prev.totalCourts + 1,
+        courts: [...prev.courts, newCourt],
+      };
+    });
+  }, []);
+
   return {
     state,
     setupCourts,
@@ -147,5 +243,15 @@ export function useAppState() {
     updateMatch,
     endMatch,
     cancelMatch,
+    addSponsor,
+    updateSponsor,
+    deleteSponsor,
+    addChecklist,
+    updateChecklist,
+    deleteChecklist,
+    addChecklistItem,
+    updateChecklistItem,
+    deleteChecklistItem,
+    addCourt,
   };
 }
