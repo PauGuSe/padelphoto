@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { AppState } from '../types';
 import { exportToCSV } from '../lib/utils';
-import { Download, Camera, Clock, Activity, Calendar } from 'lucide-react';
+import { generatePDFReport } from '../lib/pdfGenerator';
+import { Download, Camera, Clock, Activity, Calendar, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export function StatsView({ state }: { state: AppState }) {
@@ -40,13 +41,24 @@ export function StatsView({ state }: { state: AppState }) {
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-slate-800">Estadísticas</h2>
-          <button 
-            onClick={() => exportToCSV(filteredMatches, `${state.tournamentName}${selectedJornada === 'all' ? '' : `_jornada_${selectedJornada}`}`)}
-            className="flex items-center gap-2 bg-sky-100 text-sky-700 px-4 py-2 rounded-xl font-bold hover:bg-sky-200 active:scale-95 transition-all text-sm"
-          >
-            <Download className="w-4 h-4" />
-            <span>Exportar {selectedJornada === 'all' ? 'Todo' : `J${selectedJornada}`}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => generatePDFReport(state, selectedJornada, filteredMatches, courtStats)}
+              className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl font-bold hover:bg-indigo-200 active:scale-95 transition-all text-sm"
+              title="Descargar PDF"
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">PDF</span>
+            </button>
+            <button 
+              onClick={() => exportToCSV(filteredMatches, state.jornadas, `${state.tournamentName}${selectedJornada === 'all' ? '' : `_jornada_${selectedJornada}`}`)}
+              className="flex items-center gap-2 bg-sky-100 text-sky-700 px-4 py-2 rounded-xl font-bold hover:bg-sky-200 active:scale-95 transition-all text-sm"
+              title="Exportar CSV"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">CSV</span>
+            </button>
+          </div>
         </div>
 
         {/* Jornada Selector */}
