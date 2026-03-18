@@ -27,6 +27,26 @@ export interface Jornada {
   closedAt: number | null;
 }
 
+export interface Sponsor {
+  id: string;
+  name: string;
+  status: 'pending' | 'completed';
+  notes: string;
+}
+
+export interface ChecklistItem {
+  id: string;
+  name: string;
+  status: 'pending' | 'completed';
+  notes: string;
+}
+
+export interface Checklist {
+  id: string;
+  title: string;
+  items: ChecklistItem[];
+}
+
 export interface AppState {
   isSetupComplete: boolean;
   tournamentName: string;
@@ -35,4 +55,6 @@ export interface AppState {
   courts: Court[];
   matches: Match[];
   jornadas: Jornada[];
+  sponsors: Sponsor[];
+  checklists: Checklist[];
 }
