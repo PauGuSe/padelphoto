@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { AppState, Court, Match, Sponsor, ChecklistItem } from '../types';
+import { AppState, Court, Match, Sponsor, ChecklistItem, Checklist } from '../types';
 
 const STORAGE_KEY = 'padel_photo_app_state';
 
@@ -13,6 +13,8 @@ const defaultState: AppState = {
   jornadas: [],
   sponsors: [],
   checklists: [],
+  categories: ['1ra', '2da', '3ra', '4ta', '5ta', '6ta', 'Mixto', 'Fem'],
+  colors: ['Blanco', 'Negro', 'Azul', 'Celeste', 'Morado', 'Rosado', 'Rojo', 'Verde', 'Amarillo', 'Naranja', 'Gris'],
 };
 
 export function useAppState() {
@@ -27,6 +29,8 @@ export function useAppState() {
         if (!parsed.jornadas) parsed.jornadas = [];
         if (!parsed.sponsors) parsed.sponsors = [];
         if (!parsed.checklists) parsed.checklists = [];
+        if (!parsed.categories) parsed.categories = defaultState.categories;
+        if (!parsed.colors) parsed.colors = defaultState.colors;
         return parsed;
       } catch (e) {
         console.error('Failed to parse state from localStorage', e);
@@ -234,6 +238,52 @@ export function useAppState() {
     });
   }, []);
 
+  const addCategory = useCallback((category: string) => {
+    setState(prev => ({
+      ...prev,
+      categories: [...prev.categories, category]
+    }));
+  }, []);
+
+  const deleteCategory = useCallback((category: string) => {
+    setState(prev => ({
+      ...prev,
+      categories: prev.categories.filter(c => c !== category)
+    }));
+  }, []);
+
+  const addColor = useCallback((color: string) => {
+    setState(prev => ({
+      ...prev,
+      colors: [...prev.colors, color]
+    }));
+  }, []);
+
+  const deleteColor = useCallback((color: string) => {
+    setState(prev => ({
+      ...prev,
+      colors: prev.colors.filter(c => c !== color)
+    }));
+  }, []);
+
+  const reorderCategories = useCallback((startIndex: number, endIndex: number) => {
+    setState(prev => {
+      const result = Array.from(prev.categories);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return { ...prev, categories: result };
+    });
+  }, []);
+
+  const reorderColors = useCallback((startIndex: number, endIndex: number) => {
+    setState(prev => {
+      const result = Array.from(prev.colors);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return { ...prev, colors: result };
+    });
+  }, []);
+
   return {
     state,
     setupCourts,
@@ -253,5 +303,11 @@ export function useAppState() {
     updateChecklistItem,
     deleteChecklistItem,
     addCourt,
+    addCategory,
+    deleteCategory,
+    reorderCategories,
+    addColor,
+    deleteColor,
+    reorderColors,
   };
 }
