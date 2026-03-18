@@ -7,17 +7,25 @@ import { StatsView } from './StatsView';
 import { ConfirmDialog } from './ConfirmDialog';
 import { SponsorsModal } from './SponsorsModal';
 import { ChecklistModal } from './ChecklistModal';
-import { LayoutGrid, BarChart2, Settings, X, CalendarCheck, AlertTriangle, Star, Plus, ListTodo } from 'lucide-react';
+import { LayoutGrid, BarChart2, Settings, X, CalendarCheck, AlertTriangle, Star, Plus, ListTodo, Power, Palette, Tags, GripVertical } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 export function Dashboard({ appState }: { appState: ReturnType<typeof useAppState> }) {
-  const { state, startMatch, updateMatch, endMatch, cancelMatch, closeJornada, closeTournament, addSponsor, updateSponsor, deleteSponsor, addCourt, addChecklist, updateChecklist, deleteChecklist, addChecklistItem, updateChecklistItem, deleteChecklistItem } = appState;
+  const { state, startMatch, updateMatch, endMatch, cancelMatch, closeJornada, closeTournament, addSponsor, updateSponsor, deleteSponsor, addCourt, addChecklist, updateChecklist, deleteChecklist, addChecklistItem, updateChecklistItem, deleteChecklistItem, addCategory, deleteCategory, reorderCategories, addColor, deleteColor, reorderColors } = appState;
   const [activeTab, setActiveTab] = useState<'courts' | 'stats'>('courts');
   const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
   const [showSponsorsModal, setShowSponsorsModal] = useState(false);
   const [activeChecklist, setActiveChecklist] = useState<Checklist | null>(null);
   const [showAddChecklistModal, setShowAddChecklistModal] = useState(false);
   const [newChecklistName, setNewChecklistName] = useState('');
+  
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  
+  const [showAddColorModal, setShowAddColorModal] = useState(false);
+  const [newColorName, setNewColorName] = useState('');
   
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -87,6 +95,18 @@ export function Dashboard({ appState }: { appState: ReturnType<typeof useAppStat
     });
   };
 
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const { source, destination, type } = result;
+
+    if (type === 'colors') {
+      reorderColors(source.index, destination.index);
+    } else if (type === 'categories') {
+      reorderCategories(source.index, destination.index);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
@@ -104,13 +124,22 @@ export function Dashboard({ appState }: { appState: ReturnType<typeof useAppStat
             </span>
           </div>
         </div>
-        <button 
-          onClick={() => setShowSettings(true)}
-          className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors active:scale-95 shrink-0"
-          title="Opciones del Torneo"
-        >
-          <Settings className="w-6 h-6" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => setShowSettings(true)}
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors active:scale-95 shrink-0"
+            title="Configuraciones"
+          >
+            <Settings className="w-6 h-6" />
+          </button>
+          <button 
+            onClick={() => setShowCloseModal(true)}
+            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors active:scale-95 shrink-0"
+            title="Cerrar"
+          >
+            <Power className="w-6 h-6" />
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -205,33 +234,146 @@ export function Dashboard({ appState }: { appState: ReturnType<typeof useAppStat
               </button>
             </div>
             
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <div className="space-y-3">
+                <button 
+                  onClick={() => {
+                    addCourt();
+                    setShowSettings(false);
+                  }} 
+                  className="w-full bg-emerald-50 text-emerald-700 py-4 rounded-2xl font-bold hover:bg-emerald-100 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Agregar Otra Cancha
+                </button>
+                
+                <button 
+                  onClick={() => {
+                    setShowAddChecklistModal(true);
+                    setShowSettings(false);
+                  }} 
+                  className="w-full bg-indigo-50 text-indigo-700 py-4 rounded-2xl font-bold hover:bg-indigo-100 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <ListTodo className="w-5 h-5" />
+                  Agregar Recuadro
+                </button>
+
+                <div className="pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-bold text-slate-700">Colores</h4>
+                    <button 
+                      onClick={() => {
+                        setShowAddColorModal(true);
+                        setShowSettings(false);
+                      }} 
+                      className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" /> Agregar
+                    </button>
+                  </div>
+                  <Droppable droppableId="colors-list" type="colors" direction="horizontal">
+                    {(provided) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="flex flex-wrap gap-2 min-h-[32px]"
+                      >
+                        {state.colors.map((color, index) => (
+                          // @ts-expect-error - React 19 types issue with @hello-pangea/dnd
+                          <Draggable key={color} draggableId={`color-${color}`} index={index}>
+                            {(provided, snapshot) => (
+                              <span 
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${snapshot.isDragging ? 'bg-amber-100 text-amber-800 shadow-md' : 'bg-slate-100 text-slate-700'}`}
+                              >
+                                <span {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600">
+                                  <GripVertical className="w-3 h-3" />
+                                </span>
+                                {color}
+                                <button onClick={() => deleteColor(color)} className="p-0.5 hover:bg-slate-200 rounded-full text-slate-400 hover:text-red-500 transition-colors">
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </span>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                        {state.colors.length === 0 && <span className="text-xs text-slate-400 italic">No hay colores</span>}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-bold text-slate-700">Categorías</h4>
+                    <button 
+                      onClick={() => {
+                        setShowAddCategoryModal(true);
+                        setShowSettings(false);
+                      }} 
+                      className="text-xs font-bold text-fuchsia-600 hover:text-fuchsia-700 flex items-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" /> Agregar
+                    </button>
+                  </div>
+                  <Droppable droppableId="categories-list" type="categories" direction="horizontal">
+                    {(provided) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="flex flex-wrap gap-2 min-h-[32px]"
+                      >
+                        {state.categories.map((cat, index) => (
+                          // @ts-expect-error - React 19 types issue with @hello-pangea/dnd
+                          <Draggable key={cat} draggableId={`cat-${cat}`} index={index}>
+                            {(provided, snapshot) => (
+                              <span 
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${snapshot.isDragging ? 'bg-fuchsia-100 text-fuchsia-800 shadow-md' : 'bg-slate-100 text-slate-700'}`}
+                              >
+                                <span {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600">
+                                  <GripVertical className="w-3 h-3" />
+                                </span>
+                                {cat}
+                                <button onClick={() => deleteCategory(cat)} className="p-0.5 hover:bg-slate-200 rounded-full text-slate-400 hover:text-red-500 transition-colors">
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </span>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                        {state.categories.length === 0 && <span className="text-xs text-slate-400 italic">No hay categorías</span>}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              </div>
+            </DragDropContext>
+          </div>
+        </div>
+      )}
+
+      {/* Close Modal */}
+      {showCloseModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b pb-4">
+              <h3 className="text-xl font-bold text-slate-800">Cerrar</h3>
+              <button onClick={() => setShowCloseModal(false)} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 active:scale-95">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
             <div className="space-y-3">
               <button 
                 onClick={() => {
-                  addCourt();
-                  setShowSettings(false);
+                  handleCloseJornada();
+                  setShowCloseModal(false);
                 }} 
-                className="w-full bg-emerald-50 text-emerald-700 py-4 rounded-2xl font-bold hover:bg-emerald-100 active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Agregar Otra Cancha
-              </button>
-              
-              <button 
-                onClick={() => {
-                  setShowAddChecklistModal(true);
-                  setShowSettings(false);
-                }} 
-                className="w-full bg-indigo-50 text-indigo-700 py-4 rounded-2xl font-bold hover:bg-indigo-100 active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
-                <ListTodo className="w-5 h-5" />
-                Agregar Recuadro
-              </button>
-            </div>
-
-            <div className="pt-4 border-t space-y-3">
-              <button 
-                onClick={handleCloseJornada} 
                 className="w-full bg-sky-100 text-sky-700 py-4 rounded-2xl font-bold hover:bg-sky-200 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <CalendarCheck className="w-5 h-5" />
@@ -244,7 +386,10 @@ export function Dashboard({ appState }: { appState: ReturnType<typeof useAppStat
 
             <div className="pt-4 border-t space-y-3">
               <button 
-                onClick={handleCloseTournament} 
+                onClick={() => {
+                  handleCloseTournament();
+                  setShowCloseModal(false);
+                }} 
                 className="w-full bg-red-50 text-red-600 border border-red-200 py-4 rounded-2xl font-bold hover:bg-red-100 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <AlertTriangle className="w-5 h-5" />
@@ -315,6 +460,120 @@ export function Dashboard({ appState }: { appState: ReturnType<typeof useAppStat
         </div>
       )}
 
+      {/* Add Category Modal */}
+      {showAddCategoryModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b pb-4">
+              <h3 className="text-xl font-bold text-slate-800">Nueva Categoría</h3>
+              <button 
+                onClick={() => {
+                  setShowAddCategoryModal(false);
+                  setNewCategoryName('');
+                }} 
+                className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 active:scale-95"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nombre de la Categoría</label>
+                <input 
+                  type="text" 
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                  placeholder="Ej: 7ma, Junior..."
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newCategoryName.trim()) {
+                      addCategory(newCategoryName.trim());
+                      setShowAddCategoryModal(false);
+                      setNewCategoryName('');
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button 
+                onClick={() => {
+                  if (newCategoryName.trim()) {
+                    addCategory(newCategoryName.trim());
+                    setShowAddCategoryModal(false);
+                    setNewCategoryName('');
+                  }
+                }}
+                disabled={!newCategoryName.trim()}
+                className="w-full bg-fuchsia-600 hover:bg-fuchsia-700 disabled:bg-slate-200 disabled:text-slate-400 text-white text-lg font-bold py-4 rounded-2xl shadow-lg shadow-fuchsia-600/30 active:scale-95 transition-all"
+              >
+                Agregar Categoría
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Color Modal */}
+      {showAddColorModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b pb-4">
+              <h3 className="text-xl font-bold text-slate-800">Nuevo Color</h3>
+              <button 
+                onClick={() => {
+                  setShowAddColorModal(false);
+                  setNewColorName('');
+                }} 
+                className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 active:scale-95"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nombre del Color</label>
+                <input 
+                  type="text" 
+                  value={newColorName}
+                  onChange={(e) => setNewColorName(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                  placeholder="Ej: Turquesa, Fucsia..."
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newColorName.trim()) {
+                      addColor(newColorName.trim());
+                      setShowAddColorModal(false);
+                      setNewColorName('');
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button 
+                onClick={() => {
+                  if (newColorName.trim()) {
+                    addColor(newColorName.trim());
+                    setShowAddColorModal(false);
+                    setNewColorName('');
+                  }
+                }}
+                disabled={!newColorName.trim()}
+                className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-200 disabled:text-slate-400 text-white text-lg font-bold py-4 rounded-2xl shadow-lg shadow-amber-500/30 active:scale-95 transition-all"
+              >
+                Agregar Color
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Close Jornada Modal */}
       {showCloseJornadaModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -377,6 +636,8 @@ export function Dashboard({ appState }: { appState: ReturnType<typeof useAppStat
         <MatchModal
           court={selectedCourt}
           activeMatch={activeMatch}
+          categories={state.categories}
+          colors={state.colors}
           onClose={() => setSelectedCourt(null)}
           onStart={startMatch}
           onUpdate={updateMatch}

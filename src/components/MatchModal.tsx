@@ -6,15 +6,14 @@ import { LiveTimer } from './LiveTimer';
 interface MatchModalProps {
   court: Court;
   activeMatch?: Match;
+  categories: string[];
+  colors: string[];
   onClose: () => void;
   onStart: (courtId: number, data: any) => void;
   onUpdate: (matchId: string, data: Partial<Match>) => void;
   onEnd: (courtId: number, matchId: string) => void;
   onCancel: (courtId: number, matchId: string) => void;
 }
-
-const CATEGORIES = ['1ra', '2da', '3ra', '4ta', '5ta', '6ta', 'Mixto', 'Fem'];
-const COLORS = ['Blanco', 'Negro', 'Azul', 'Celeste', 'Morado', 'Rosado', 'Rojo', 'Verde', 'Amarillo', 'Naranja', 'Gris'];
 
 const parseInitialPlayers = (raw: string) => {
   const defaultState = {
@@ -65,7 +64,7 @@ const buildPlayersString = (data: ReturnType<typeof parseInitialPlayers>) => {
   return `${t1p1}/${t1p2} vs ${t2p1}/${t2p2}`;
 };
 
-export function MatchModal({ court, activeMatch, onClose, onStart, onUpdate, onEnd, onCancel }: MatchModalProps) {
+export function MatchModal({ court, activeMatch, categories, colors, onClose, onStart, onUpdate, onEnd, onCancel }: MatchModalProps) {
   const isNew = !activeMatch;
   
   const [playersData, setPlayersData] = useState(() => parseInitialPlayers(activeMatch?.players || ''));
@@ -87,7 +86,7 @@ export function MatchModal({ court, activeMatch, onClose, onStart, onUpdate, onE
   }, [activeMatch?.id, onUpdate]);
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
@@ -215,7 +214,7 @@ export function MatchModal({ court, activeMatch, onClose, onStart, onUpdate, onE
         className="w-28 p-2.5 bg-white border border-slate-200 rounded-lg focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none text-sm font-medium text-slate-700"
       >
         <option value="">Color...</option>
-        {COLORS.map(c => <option key={c} value={c}>{c}</option>)}
+        {colors.map(c => <option key={c} value={c}>{c}</option>)}
       </select>
     </div>
   );
@@ -270,7 +269,7 @@ export function MatchModal({ court, activeMatch, onClose, onStart, onUpdate, onE
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">Categoría</label>
             <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map(cat => (
+              {categories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => {
