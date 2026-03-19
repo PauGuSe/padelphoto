@@ -26,7 +26,14 @@ export function exportToCSV(matches: any[], jornadas: any[], tournamentName: str
     
     const start = new Date(m.startTime).toLocaleTimeString();
     const end = m.endTime ? new Date(m.endTime).toLocaleTimeString() : 'En curso';
-    const dur = m.duration ? (m.duration / 60).toFixed(1) : '-';
+    
+    let dur = '-';
+    if (m.endTime) {
+      const diffMs = new Date(m.endTime).getTime() - new Date(m.startTime).getTime();
+      dur = Math.round(diffMs / 60000).toString();
+    } else if (m.duration) {
+      dur = (m.duration / 60).toFixed(1);
+    }
     
     const generatedId = `"${jName}/${jDate}/${start}"`;
     
