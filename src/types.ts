@@ -47,9 +47,24 @@ export interface Checklist {
   items: ChecklistItem[];
 }
 
-export interface AppState {
+export type Role = 'admin' | 'user' | 'viewer';
+
+export interface User {
+  id: string;
+  username: string;
+  password?: string;
+  role: Role;
+}
+
+export interface Tournament {
+  id: string;
+  userId: string;
+  viewerIds?: string[];
+  status: 'setup' | 'active' | 'closed';
   isSetupComplete: boolean;
   tournamentName: string;
+  tournamentLogo?: string;
+  themeColor?: string;
   totalCourts: number;
   currentJornada: number;
   courts: Court[];
@@ -59,4 +74,13 @@ export interface AppState {
   checklists: Checklist[];
   categories: string[];
   colors: string[];
+  createdAt: number;
+  closedAt?: number;
+}
+
+export interface AppState {
+  currentUser: User | null;
+  users: User[];
+  tournaments: Tournament[];
+  activeTournamentId: string | null;
 }
