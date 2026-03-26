@@ -16,7 +16,13 @@ export function LoginScreen({ users, onLogin }: LoginScreenProps) {
     e.preventDefault();
     setError('');
 
-    const user = users.find(u => u.username === username && u.password === password);
+    const trimmedUsername = username.trim().toLowerCase();
+    const trimmedPassword = password.trim();
+
+    const user = users.find(u => 
+      u.username.trim().toLowerCase() === trimmedUsername && 
+      u.password.trim() === trimmedPassword
+    );
     
     if (user) {
       onLogin(user);
