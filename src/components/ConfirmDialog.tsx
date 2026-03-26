@@ -26,7 +26,7 @@ export function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 w-full max-w-sm shadow-2xl">
         <div className="flex flex-col items-center text-center space-y-4">
           <div className={`w-16 h-16 rounded-full flex items-center justify-center ${isDestructive ? 'bg-red-100 text-red-600' : 'bg-sky-100 text-sky-600'}`}>
             <AlertTriangle className="w-8 h-8" />

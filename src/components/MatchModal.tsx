@@ -221,10 +221,10 @@ export function MatchModal({ court, activeMatch, categories, colors, onClose, on
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white/90 backdrop-blur-xl w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200/50 shrink-0">
           <div>
             <h2 className="text-2xl font-bold text-slate-800">{court.name}</h2>
             {activeMatch && (
@@ -247,18 +247,18 @@ export function MatchModal({ court, activeMatch, categories, colors, onClose, on
             <label className="block text-sm font-semibold text-slate-700 mb-3">Jugadores / Equipos</label>
             <div className="flex flex-col gap-2">
               {/* Team 1 */}
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+              <div className="bg-white/50 p-3 rounded-xl border border-slate-200/50 space-y-2">
                 {renderPlayerInput('t1p1', 'Jugador 1')}
                 {renderPlayerInput('t1p2', 'Jugador 2')}
               </div>
               
               {/* VS Badge */}
               <div className="flex justify-center -my-3 relative z-10">
-                <span className="bg-slate-800 text-white text-[10px] font-black px-3 py-1 rounded-full border-4 border-white tracking-wider">VS</span>
+                <span className="bg-slate-800 text-white text-[10px] font-black px-3 py-1 rounded-full border-4 border-white/50 tracking-wider">VS</span>
               </div>
 
               {/* Team 2 */}
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+              <div className="bg-white/50 p-3 rounded-xl border border-slate-200/50 space-y-2">
                 {renderPlayerInput('t2p1', 'Jugador 3')}
                 {renderPlayerInput('t2p2', 'Jugador 4')}
               </div>
@@ -289,12 +289,12 @@ export function MatchModal({ court, activeMatch, categories, colors, onClose, on
           </div>
 
           {/* Photos Counter */}
-          <div className="bg-sky-50 p-4 rounded-2xl border border-sky-100">
+          <div className="bg-sky-50/50 p-4 rounded-2xl border border-sky-100/50">
             <label className="block text-sm font-semibold text-sky-900 mb-3 text-center">Ráfagas de Fotos Tomadas</label>
             <div className="flex items-center justify-center gap-6">
               <button 
                 onClick={() => handlePhotoChange(-1)}
-                className="w-14 h-14 rounded-full bg-white text-sky-600 font-bold text-2xl shadow-sm border border-sky-200 active:scale-90 flex items-center justify-center"
+                className="w-14 h-14 rounded-full bg-white/80 text-sky-600 font-bold text-2xl shadow-sm border border-sky-200/50 active:scale-90 flex items-center justify-center"
               >-</button>
               <div className="flex flex-col items-center w-20">
                 <span className="text-4xl font-black text-sky-700">{photoBursts}</span>
@@ -353,7 +353,7 @@ export function MatchModal({ court, activeMatch, categories, colors, onClose, on
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t bg-slate-50 flex flex-col gap-3 pb-safe shrink-0">
+        <div className="p-4 border-t border-slate-200/50 bg-white/50 flex flex-col gap-3 pb-safe shrink-0">
           {isNew ? (
             <button
               onClick={handleStart}

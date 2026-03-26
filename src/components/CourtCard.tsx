@@ -19,8 +19,8 @@ export function CourtCard({ court, activeMatch, onClick }: CourtCardProps) {
       className={cn(
         "relative flex flex-col items-start p-4 rounded-2xl text-left transition-all active:scale-95 shadow-sm border min-h-[120px]",
         isAvailable 
-          ? "bg-white border-emerald-100 hover:border-emerald-300" 
-          : "bg-amber-500 border-amber-600 text-white shadow-amber-500/30 shadow-lg"
+          ? "bg-white/80 backdrop-blur-md border-emerald-100 hover:border-emerald-300" 
+          : "bg-royal-blue/90 backdrop-blur-md border-blue-700 text-white shadow-royal-blue/30 shadow-lg"
       )}
     >
       <div className="flex justify-between w-full items-center mb-3">
@@ -29,7 +29,7 @@ export function CourtCard({ court, activeMatch, onClick }: CourtCardProps) {
         </span>
         <div className={cn(
           "px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider",
-          isAvailable ? "bg-emerald-100 text-emerald-700" : "bg-amber-600 text-amber-50"
+          isAvailable ? "bg-emerald-100 text-emerald-700" : "bg-blue-700 text-blue-50"
         )}>
           {isAvailable ? 'Disponible' : 'En Uso'}
         </div>
@@ -42,17 +42,17 @@ export function CourtCard({ court, activeMatch, onClick }: CourtCardProps) {
       ) : (
         <div className="w-full space-y-2 flex-1 flex flex-col">
           {activeMatch?.players && (
-            <p className="text-amber-50 font-medium truncate text-sm">
+            <p className="text-blue-50 font-medium truncate text-sm">
               {activeMatch.players}
             </p>
           )}
-          <div className="flex items-center justify-between w-full mt-auto pt-2 border-t border-amber-400/50">
-            <div className="flex items-center gap-1.5 text-amber-50 font-semibold">
+          <div className="flex items-center justify-between w-full mt-auto pt-2 border-t border-blue-400/50">
+            <div className="flex items-center gap-1.5 text-blue-50 font-semibold">
               <Clock className="w-4 h-4" />
               <LiveTimer startTime={activeMatch!.startTime} />
             </div>
             {activeMatch!.photoBursts > 0 && (
-              <div className="flex items-center gap-1 bg-amber-600 px-2 py-0.5 rounded-full text-xs font-bold">
+              <div className="flex items-center gap-1 bg-blue-700 px-2 py-0.5 rounded-full text-xs font-bold">
                 <Camera className="w-3 h-3" />
                 {activeMatch!.photoBursts}
               </div>

@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react';
-import { AppState } from '../types';
+import { Tournament, User } from '../types';
 import { exportToCSV } from '../lib/utils';
 import { generatePDFReport } from '../lib/pdfGenerator';
 import { Download, Camera, Clock, Activity, Calendar, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-export function StatsView({ state }: { state: AppState }) {
+export function StatsView({ state }: { state: Tournament & { currentUser: User | null, users: User[] } }) {
   const [selectedJornada, setSelectedJornada] = useState<number | 'all'>('all');
 
   // Get unique jornadas that have matches
@@ -95,7 +95,7 @@ export function StatsView({ state }: { state: AppState }) {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+        <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-100/50 flex flex-col">
           <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
             <Activity className="w-5 h-5 text-emerald-600" />
           </div>
@@ -103,7 +103,7 @@ export function StatsView({ state }: { state: AppState }) {
           <span className="text-sm font-semibold text-slate-500">Partidos Cubiertos</span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+        <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-100/50 flex flex-col">
           <div className="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center mb-3">
             <Camera className="w-5 h-5 text-sky-600" />
           </div>
@@ -111,9 +111,9 @@ export function StatsView({ state }: { state: AppState }) {
           <span className="text-sm font-semibold text-slate-500">Ráfagas de Fotos</span>
         </div>
 
-        <div className={`bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col ${selectedJornada !== 'all' ? 'col-span-2 sm:col-span-1' : ''}`}>
-          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mb-3">
-            <Clock className="w-5 h-5 text-amber-600" />
+        <div className={`bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-100/50 flex flex-col ${selectedJornada !== 'all' ? 'col-span-2 sm:col-span-1' : ''}`}>
+          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+            <Clock className="w-5 h-5 text-blue-600" />
           </div>
           <span className="text-3xl font-black text-slate-800">
             {totalHours > 0 ? `${totalHours}h ` : ''}{totalMinutes}m
@@ -122,7 +122,7 @@ export function StatsView({ state }: { state: AppState }) {
         </div>
 
         {selectedJornada === 'all' && (
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+          <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-100/50 flex flex-col">
             <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
               <Calendar className="w-5 h-5 text-indigo-600" />
             </div>
@@ -134,7 +134,7 @@ export function StatsView({ state }: { state: AppState }) {
 
       {/* Chart */}
       {courtStats.length > 0 ? (
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+        <div className="bg-white/80 backdrop-blur-md p-5 rounded-2xl shadow-sm border border-slate-100/50">
           <h3 className="text-lg font-bold text-slate-800 mb-4">
             {selectedJornada === 'all' ? 'Partidos por Cancha (Total)' : `Partidos por Cancha (Jornada ${selectedJornada})`}
           </h3>
@@ -156,7 +156,7 @@ export function StatsView({ state }: { state: AppState }) {
           </div>
         </div>
       ) : (
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">
+        <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-sm border border-slate-100/50 text-center">
           <p className="text-slate-500">No hay partidos registrados en esta vista.</p>
         </div>
       )}
@@ -178,7 +178,7 @@ export function StatsView({ state }: { state: AppState }) {
                 <button 
                   key={j} 
                   onClick={() => setSelectedJornada(j)}
-                  className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:border-sky-300 transition-all group text-left w-full"
+                  className="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-slate-100/50 flex items-center justify-between hover:border-sky-300 transition-all group text-left w-full"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 font-bold group-hover:bg-sky-100 group-hover:text-sky-600 transition-colors">

@@ -51,10 +51,10 @@ export function ChecklistModal({ checklist, onClose, onAdd, onUpdate, onDelete, 
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+        <div className="px-6 py-4 border-b border-slate-200/50 flex items-center justify-between shrink-0">
           {isEditingTitle ? (
             <div className="flex-1 flex items-center gap-2 mr-4">
               <input
