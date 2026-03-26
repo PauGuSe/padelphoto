@@ -389,10 +389,27 @@ export function useAppState() {
   }, []);
 
   const addUser = useCallback((user: Omit<User, 'id'>) => {
-    setGlobalState(prev => ({
-      ...prev,
-      users: [...prev.users, { ...user, id: crypto.randomUUID() }]
-    }));
+    setGlobalState(prev => {
+      const newUserId = crypto.randomUUID();
+      const newUser = { ...user, id: newUserId };
+      
+      let newTournaments = prev.tournaments;
+      
+      // If a viewer is created while inside a tournament, automatically assign them to it
+      if (user.role === 'viewer' && prev.activeTournamentId) {
+        newTournaments = prev.tournaments.map(t => 
+          t.id === prev.activeTournamentId 
+            ? { ...t, viewerIds: [...(t.viewerIds || []), newUserId] }
+            : t
+        );
+      }
+
+      return {
+        ...prev,
+        users: [...prev.users, newUser],
+        tournaments: newTournaments
+      };
+    });
   }, []);
 
   const updateUser = useCallback((id: string, updates: Partial<User>) => {
